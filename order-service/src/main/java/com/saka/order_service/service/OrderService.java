@@ -22,7 +22,7 @@ public class OrderService {
         try {
             // 1. inventory check
             Boolean inStock = webClient.get()
-                    .uri("http://localhost:8082/inventory/check/" + request.getProduct())
+                    .uri("http://inventory-service:8082/inventory/check/" + request.getProduct())
                     .retrieve()
                     .bodyToMono(Boolean.class)
                     .block();
@@ -33,7 +33,7 @@ public class OrderService {
 
             // 2. payment
             webClient.post()
-                    .uri("http://localhost:8083/payment/process")
+                    .uri("http://payment-service:8083/payment/process")
                     .bodyValue("Payment for " + request.getProduct())
                     .retrieve()
                     .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
@@ -43,7 +43,7 @@ public class OrderService {
 
             // 3.
             webClient.post()
-                    .uri("http://localhost:8084/notify")
+                    .uri("http://notification-service:8084/notify")
                     .bodyValue("Order placed for " + request.getProduct())
                     .retrieve()
                     .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
